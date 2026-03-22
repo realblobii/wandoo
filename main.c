@@ -8,18 +8,21 @@
 typedef struct {
     char *task;
     uint8_t complete;
+    int parent;
+    int *children;
+    int childCount;
 } Task;
 
 Task* tasks;
 int taskCount = 1;
 
 void printTasks(int highlight);
-void newTask();
+void newTask(int parent);
 
 int main()
 {
     tasks = calloc(1, sizeof(Task));
-    tasks[0] = (Task){.task = strdup("Task 1"), .complete=0x00};
+    tasks[0] = (Task){.task = strdup("root"), .complete=0x00, .parent=-1, .children = NULL, .childCount = 0};
     int highlight = 1;
     int c;
 
@@ -51,7 +54,7 @@ int main()
                 tasks[highlight-1].complete ^= 0x01; 
                 break;
             case '+':                  
-                newTask(); 
+                newTask(highlight-1); 
                 break;
             case 'q':
                 goto cleanup;
@@ -69,30 +72,42 @@ cleanup:
     return 0;
 }
 
-void printTasks(int highlight)
+// printTaskRecursive(int id, int highlight, int x, int *y, int depth) is a recursive function that
+// recurses through each task, printing its information at indentation level depth, starting at x and y, and highlighting
+// the task corresponding to highlight. 
+void printTaskRecursive(int id, int highlight, int x, int *y, int depth)
 {
-    int x = 2, y = 2;
-    for (int i = 0; i < taskCount; ++i)
+    int indent = depth * 2;
+
+    if (highlight == id + 1)
+        attron(A_REVERSE);
+
+    if (tasks[id].complete == 0x01)
+        mvprintw(*y, x + indent, "[x] %s", tasks[id].task);
+    else
+        mvprintw(*y, x + indent, "[-] %s", tasks[id].task);
+
+    if (highlight == id + 1)
+        attroff(A_REVERSE);
+
+    (*y)++;
+
+    for (int i = 0; i < tasks[id].childCount; i++)
     {
-        if (highlight == i + 1)
-            attron(A_REVERSE);
-        switch (tasks[i].complete){ 
-            case 0x01:
-                mvprintw(y, x, "[x] %s", tasks[i].task);
-                break;
-            default:
-                mvprintw(y, x, "[-] %s", tasks[i].task);
-                break;
-        }
-
-        if (highlight == i + 1)
-            attroff(A_REVERSE);
-
-        y++;
+        int childID = tasks[id].children[i];
+        printTaskRecursive(childID, highlight, x, y, depth + 1);
     }
 }
 
-void newTask()
+// printTasks(int highlight) starts the recursive print task function and highlights the task corresponding to highlight
+void printTasks(int highlight)
+{
+    int x = 2, y = 2;
+    printTaskRecursive(0, highlight, x, &y, 0);
+}
+
+// newTask(int parent) creates a dialog to create a new task with the parent parent. 
+void newTask(int parent)
 {
     int h = 7, w = 75;
     int y = (LINES - h) / 2;
@@ -116,14 +131,23 @@ void newTask()
 
     echo();
     char buffer[tbw-3];
-    mvwgetnstr(popup, 3, 4, buffer, tbw-4); // user types here
+    mvwgetnstr(popup, 3, 4, buffer, tbw-4);
     noecho();
 
-
     tasks = realloc(tasks, sizeof(Task) * (taskCount + 1));
-    tasks[taskCount] = (Task){.task = strdup(buffer), .complete=0x00};
+    tasks[taskCount] = (Task){
+        .task = strdup(buffer),
+        .complete = 0x00,
+        .parent = parent,
+        .children = NULL,
+        .childCount = 0
+    };
+
+    Task *p = &tasks[parent];
+    p->children = realloc(p->children, sizeof(int) * (p->childCount + 1));
+    p->children[p->childCount] = taskCount;
+    p->childCount++;
+
     taskCount++;
-
-
     delwin(popup);
 }
