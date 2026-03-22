@@ -1,26 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <ncurses.h>
-#include <string.h>
-
-
-typedef struct {
-    char *task;
-    uint8_t complete;
-    int parent;
-    int *children;
-    int childCount;
-} Task;
-
-Task* tasks;
-int taskCount = 1;
-
-void printTasks(int highlight);
-void newTask(int parent);
+#include "wandoo.h"
 
 int main()
 {
+    taskCount = 1;
     tasks = calloc(1, sizeof(Task));
     tasks[0] = (Task){.task = strdup("root"), .complete=0x00, .parent=-1, .children = NULL, .childCount = 0};
     int highlight = 1;
