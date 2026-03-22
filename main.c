@@ -1,9 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <ncurses.h>
 #include <string.h>
 
-char **tasks;
+
+typedef struct {
+    char *task;
+    uint8_t complete;
+} Task;
+
+Task* tasks;
 int taskCount = 1;
 
 void printTasks(int highlight);
@@ -11,9 +18,8 @@ void newTask();
 
 int main()
 {
-    tasks = calloc(1, sizeof(char*));
-    tasks[0] = strdup("New Task");
-
+    tasks = calloc(1, sizeof(Task));
+    tasks[0] = (Task){.task = strdup("Task 1"), .complete=0x00};
     int highlight = 1;
     int c;
 
@@ -41,6 +47,9 @@ int main()
                 highlight++;
                 if (highlight > taskCount) highlight = 1;
                 break;
+            case 10:
+                tasks[highlight-1].complete ^= 0x01; 
+                break;
             case '+':                  
                 newTask(); 
                 break;
@@ -51,8 +60,12 @@ int main()
 
 cleanup:
     endwin();
-    for (int i = 0; i < taskCount; i++) free(tasks[i]);
-    free(tasks);
+
+    for (int i = 0; i < taskCount; i++) {
+        free(tasks[i].task); 
+    }
+
+    free(tasks); 
     return 0;
 }
 
@@ -63,8 +76,14 @@ void printTasks(int highlight)
     {
         if (highlight == i + 1)
             attron(A_REVERSE);
-
-        mvprintw(y, x, "[ ] %s", tasks[i]);
+        switch (tasks[i].complete){ 
+            case 0x01:
+                mvprintw(y, x, "[x] %s", tasks[i].task);
+                break;
+            default:
+                mvprintw(y, x, "[-] %s", tasks[i].task);
+                break;
+        }
 
         if (highlight == i + 1)
             attroff(A_REVERSE);
@@ -101,8 +120,8 @@ void newTask()
     noecho();
 
 
-    tasks = realloc(tasks, sizeof(char*) * (taskCount + 1));
-    tasks[taskCount] = strdup(buffer);
+    tasks = realloc(tasks, sizeof(Task) * (taskCount + 1));
+    tasks[taskCount] = (Task){.task = strdup(buffer), .complete=0x00};
     taskCount++;
 
 
