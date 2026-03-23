@@ -20,9 +20,9 @@ its pretty simple, that's good. i'm following the unix philosophy.
 
 ## contributing
 
-only add pull requests on [codeberg](https://codeberg.org/blobii/wandoo) please, github is a mirror.
+add a pull request and ill look over it. 
 
-if you get a bug please just tell me with a screenshot or logs.
+if you get a bug please just make an issue with a screenshot or logs.
 
 ## installing
 
