@@ -18,6 +18,13 @@ typedef struct {
 // VARIABLES
 Task* tasks;
 int taskCount;
+char* curFileName;
+
+
+int c;
+int curIndex;
+int highlightedID;
+int visibleTasks;
 
 // FUNCTION DECLARATIONS
 
@@ -28,3 +35,7 @@ int printTasks(int highlight);
 void editTask(int id, int parent, char* pretext);
 
 int getTaskIDByHighlight(int targetHighlight, int *currentIndex, int id);
+
+void saveFile(char* name);
+
+void loadFile(char* name);
