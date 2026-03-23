@@ -14,7 +14,7 @@ its pretty simple, that's good. i'm following the unix philosophy.
 
 only add pull requests on [codeberg](https://codeberg.org/blobii/wandoo) please, github is a mirror.
 
-if you get a bug please just tell me with a screenshot or logs
+if you get a bug please just tell me with a screenshot or logs.
 
 ## installing
 
