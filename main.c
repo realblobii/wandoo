@@ -5,18 +5,19 @@ int highlight = 1;
 
 int main(int argc, char* argv[])
 {
-  initscr();
-  noecho();
-  cbreak();
-  keypad(stdscr, TRUE);
-  curs_set(0);
-
+  
   if (argc == 2)
   {
+    initscr();
+    noecho();
+    cbreak();
+    keypad(stdscr, TRUE);
+    curs_set(0);
     loadFile(argv[1]);
   }
   else
   {
+    printf("Incorrect usage. \nUsage: wandoo <filename>\n");
     return 1; 
   }
 

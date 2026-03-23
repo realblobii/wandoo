@@ -1,1 +1,1 @@
-#define WANDOO_VER "1.0.0"
+#define WANDOO_VER "1.0.1"
