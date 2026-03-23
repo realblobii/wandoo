@@ -4,15 +4,17 @@
 
 wandoo is a simple and sturdy tree-based todo software in pure C using ncurses. 
 
-inspired by the legendary Task Coach. 
+its a checklist with n-ary trees. what more could you want? 
 
-wandoo as in the Australian native tree renowned for how hard it is. 
+technically project management software but its like 600 lines of code..
 
 its pretty simple, that's good. i'm following the unix philosophy.
 
 ## contributing
 
-only add pull requests on [codeberg](https://codeberg.org/blobii/wandoo) please, github is a mirror. 
+only add pull requests on [codeberg](https://codeberg.org/blobii/wandoo) please, github is a mirror.
+
+if you get a bug please just tell me with a screenshot or logs
 
 ## installing
 
