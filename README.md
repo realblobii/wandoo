@@ -10,6 +10,14 @@ technically project management software but its like 600 lines of code..
 
 its pretty simple, that's good. i'm following the unix philosophy.
 
+## how to use 
+
+- space to check or uncheck a task.
+- enter to edit a task. 
+- `+` opens an add task dialog to create a new task.
+- `w` writes the file with the latest changes. 
+- `q` quits.
+
 ## contributing
 
 only add pull requests on [codeberg](https://codeberg.org/blobii/wandoo) please, github is a mirror.
