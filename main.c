@@ -1,7 +1,26 @@
 #include "wandoo.h"
 #include "meta.h"
 
-int highlight = 1; 
+int highlight = 1;
+
+#ifdef WANDOO_DEBUG_PRINT
+/// function for debug printing
+/// available with only -DWANDOO_DEBUG_PRINT
+///
+/// line - may be not \n terminated, the function will take care of it
+void debugPrint(char *line) {
+    FILE *f = fopen("debugoutput", "a");
+    if (!f) return;
+
+    fwrite(line, sizeof(char), strlen(line), f);
+    fwrite("\n", sizeof(char), 1, f);
+
+    fclose(f);
+}
+#endif /* WANDOO_DEBUG_PRINT */
+
+// #ifdef WANDOO_DEBUG_PRINT
+// #endif /* WANDOO_DEBUG_PRINT */
 
 int main(int argc, char* argv[])
 {
@@ -21,6 +40,15 @@ int main(int argc, char* argv[])
     return 1; 
   }
 
+#ifdef WANDOO_DEBUG_PRINT
+    {
+        char *buffer = malloc(32);
+        sprintf(buffer, "\n### START OF NEW DEBUG LOG ###");
+        debugPrint(buffer);
+        free(buffer);
+    }
+#endif /* WANDOO_DEBUG_PRINT */
+  
   while (1)
   {
     clear();
@@ -69,6 +97,15 @@ cleanup:
   for (int i = 0; i < taskCount; i++)
     free(tasks[i].task);
   free(tasks);
+
+#ifdef WANDOO_DEBUG_PRINT
+    {
+        char *buffer = malloc(29);
+        sprintf(buffer, "### END OF THE DEBUG LOG ###");
+        debugPrint(buffer);
+        free(buffer);
+    }
+#endif /* WANDOO_DEBUG_PRINT */
   return 0;
 }
 
@@ -104,7 +141,6 @@ int printTasks(int highlight)
 
 void editTask(int id, int parent, char* pretext)
 {
-  uint8_t cmp = tasks[id].complete;
   int h = 7, w = 75;
   int y = (LINES - h) / 2;
   int x = (COLS - w) / 2;
@@ -177,8 +213,6 @@ void editTask(int id, int parent, char* pretext)
   if (tasks[id].task != NULL) free(tasks[id].task);
 
   tasks[id].task = strdup(buffer);
-  tasks[id].complete = cmp;
-  tasks[id].parent = parent;
 
   if (id >= taskCount && parent >= 0) {
     Task *p = &tasks[parent];
