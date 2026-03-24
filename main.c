@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
     cbreak();
     keypad(stdscr, TRUE);
     curs_set(0);
+    set_escdelay(25);
     loadFile(argv[1]);
   }
   else
@@ -196,6 +197,13 @@ void editTask(int id, int parent, char* pretext, int mode)
     else if ((ch == KEY_BACKSPACE || ch == 127) && cursor > 0) {
       memmove(&buffer[cursor-1], &buffer[cursor], strlen(buffer) - cursor + 1);
       cursor--;
+    }
+    else if (ch == 27)
+    {
+      delwin(popup);
+      noecho();
+      curs_set(0);
+      return; 
     }
     else if (ch >= 32 && ch <= 126 && strlen(buffer) < maxlen) {
       memmove(&buffer[cursor+1], &buffer[cursor], strlen(buffer) - cursor + 1);
