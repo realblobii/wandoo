@@ -2,6 +2,20 @@
 #include "meta.h"
 
 int highlight = 1;
+char* helpmsg =
+  "How to use wandoo - the terminal checklist with n-ary trees\n"
+  "Usage: wandoo <filename>\n"
+  "Use wandoo --help or wandoo -h for instructions on how to use.\n"
+  "--------\n"
+  "Keybinds\n"
+  "--------\n"
+  "+ - create new task\n"
+  "Enter - edit selected task\n"
+  "Space - mark task complete\n"
+  "Del - delete selected task\n"
+  "w - save file\n"
+  "q - exit wandoo\n"
+  "--------\n";
 
 #ifdef WANDOO_DEBUG_PRINT
 /// function for debug printing
@@ -27,17 +41,25 @@ int main(int argc, char* argv[])
 
   if (argc == 2)
   {
-    initscr();
-    noecho();
-    cbreak();
-    keypad(stdscr, TRUE);
-    curs_set(0);
-    set_escdelay(25);
-    loadFile(argv[1]);
+    if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)   
+    {
+      printf("%s", helpmsg); 
+      return 0;
+    }
+    else
+    {
+      initscr();
+      noecho();
+      cbreak();
+      keypad(stdscr, TRUE);
+      curs_set(0);
+      set_escdelay(25);
+      loadFile(argv[1]);
+    }
   }
   else
   {
-    printf("Incorrect usage. \nUsage: wandoo <filename>\n");
+    printf("Incorrect usage. \nUsage: wandoo <filename>\nUse wandoo --help or wandoo -h for instructions on how to use.\n");
     return 1; 
   }
 
@@ -57,6 +79,7 @@ int main(int argc, char* argv[])
     attron(A_REVERSE);         
     mvhline(0, 0, ' ', width); 
     mvprintw(0, 0, " wandoo %s - editing '%s'", WANDOO_VER, curFileName);
+    mvprintw(LINES-1, 0, " need help using wandoo? press h for a list of keybinds", WANDOO_VER, curFileName);
     attroff(A_REVERSE);        
     visibleTasks = printTasks(highlight);
     refresh();
@@ -88,6 +111,9 @@ int main(int argc, char* argv[])
         break;
       case 330:
         editTask(highlightedID, 0, "", 2);
+        break;
+      case 'h':
+        help();
         break;
       case 'q':
         goto cleanup;
@@ -125,6 +151,31 @@ void removeChildFromParent(int childId)
             return;
         }
     }
+}
+
+void help()
+{
+    int h = 12, w = 40;
+    int y = (LINES - h) / 2;
+    int x = (COLS - w) / 2;
+
+    WINDOW *popup = newwin(h, w, y, x);
+    box(popup, 0, 0);       
+    keypad(popup, TRUE);
+
+    // Example content
+    mvwprintw(popup, 1, 2, "Wandoo Help:");
+    mvwprintw(popup, 3, 2, "+     : Create new task");
+    mvwprintw(popup, 4, 2, "Enter : Edit selected task");
+    mvwprintw(popup, 5, 2, "Space : Mark task complete");
+    mvwprintw(popup, 6, 2, "Del   : Delete selected task");
+    mvwprintw(popup, 7, 2, "w     : Save file");
+    mvwprintw(popup, 8, 2, "q     : Exit");
+
+    wrefresh(popup);        
+    getch();                
+
+    delwin(popup);          
 }
 
 void printTaskRecursive(int id, int highlight, int x, int *y, int depth, int *currentIndex)

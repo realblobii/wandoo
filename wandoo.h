@@ -28,6 +28,8 @@ int visibleTasks;
 
 // FUNCTION DECLARATIONS
 
+void help();
+
 void removeChildFromParent(int childId);
 
 void recurseDelete(int id);
