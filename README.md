@@ -13,7 +13,8 @@ its pretty simple, that's good. i'm following the unix philosophy.
 ## how to use 
 
 - space to check or uncheck a task.
-- enter to edit a task. 
+- enter to edit a task.
+- delete to delete a task.
 - `+` opens an add task dialog to create a new task.
 - `w` writes the file with the latest changes. 
 - `q` quits.
