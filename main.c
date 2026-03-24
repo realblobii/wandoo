@@ -9,13 +9,13 @@ int highlight = 1;
 ///
 /// line - may be not \n terminated, the function will take care of it
 void debugPrint(char *line) {
-    FILE *f = fopen("debugoutput", "a");
-    if (!f) return;
+  FILE *f = fopen("debugoutput", "a");
+  if (!f) return;
 
-    fwrite(line, sizeof(char), strlen(line), f);
-    fwrite("\n", sizeof(char), 1, f);
+  fwrite(line, sizeof(char), strlen(line), f);
+  fwrite("\n", sizeof(char), 1, f);
 
-    fclose(f);
+  fclose(f);
 }
 #endif /* WANDOO_DEBUG_PRINT */
 
@@ -24,7 +24,7 @@ void debugPrint(char *line) {
 
 int main(int argc, char* argv[])
 {
-  
+
   if (argc == 2)
   {
     initscr();
@@ -35,20 +35,20 @@ int main(int argc, char* argv[])
     loadFile(argv[1]);
   }
   else
-  {
+{
     printf("Incorrect usage. \nUsage: wandoo <filename>\n");
     return 1; 
   }
 
 #ifdef WANDOO_DEBUG_PRINT
-    {
-        char *buffer = malloc(32);
-        sprintf(buffer, "\n### START OF NEW DEBUG LOG ###");
-        debugPrint(buffer);
-        free(buffer);
-    }
+  {
+    char *buffer = malloc(32);
+    sprintf(buffer, "\n### START OF NEW DEBUG LOG ###");
+    debugPrint(buffer);
+    free(buffer);
+  }
 #endif /* WANDOO_DEBUG_PRINT */
-  
+
   while (1)
   {
     clear();
@@ -78,11 +78,11 @@ int main(int argc, char* argv[])
         tasks[highlightedID].complete ^= 0x01;
         break;
       case '+':
-        editTask(taskCount, highlightedID, "new");
+        editTask(taskCount, highlightedID, "new", 0);
         taskCount++;
         break;
       case 10: 
-        editTask(highlightedID, tasks[highlightedID].parent, tasks[highlightedID].task);
+        editTask(highlightedID, tasks[highlightedID].parent, tasks[highlightedID].task, 1);
         break;
       case 'w':
         saveFile(curFileName);
@@ -99,12 +99,12 @@ cleanup:
   free(tasks);
 
 #ifdef WANDOO_DEBUG_PRINT
-    {
-        char *buffer = malloc(29);
-        sprintf(buffer, "### END OF THE DEBUG LOG ###");
-        debugPrint(buffer);
-        free(buffer);
-    }
+  {
+    char *buffer = malloc(29);
+    sprintf(buffer, "### END OF THE DEBUG LOG ###");
+    debugPrint(buffer);
+    free(buffer);
+  }
 #endif /* WANDOO_DEBUG_PRINT */
   return 0;
 }
@@ -139,7 +139,7 @@ int printTasks(int highlight)
   return currentIndex;
 }
 
-void editTask(int id, int parent, char* pretext)
+void editTask(int id, int parent, char* pretext, int mode)
 {
   int h = 7, w = 75;
   int y = (LINES - h) / 2;
@@ -148,7 +148,13 @@ void editTask(int id, int parent, char* pretext)
   WINDOW *popup = newwin(h, w, y, x);
   box(popup, 0, 0);
   keypad(popup, TRUE);
-  mvwprintw(popup, 1, 2, "Enter new task:");
+
+  if (mode == 0){
+    mvwprintw(popup, 1, 2, "Enter new task:");
+  }
+  else if (mode == 1){
+    mvwprintw(popup, 1, 2, "Edit task:");
+  }
 
   int tbw = w - 5;
   int maxlen = tbw - 4;
@@ -201,20 +207,22 @@ void editTask(int id, int parent, char* pretext)
   noecho();
   curs_set(0);
 
-  if (id >= taskCount) {
+  if (mode == 0)
+  {
     Task *newTasks = realloc(tasks, sizeof(Task) * (id + 1));
     if (!newTasks) {
       delwin(popup);
       return;
     }
     tasks = newTasks;
-  }
 
-  if (tasks[id].task != NULL) free(tasks[id].task);
+    memset(&tasks[id], 0, sizeof(Task));
 
-  tasks[id].task = strdup(buffer);
+    if (tasks[id].task != NULL) {
+      free(tasks[id].task);
+      tasks[id].task = NULL;
+    }
 
-  if (id >= taskCount && parent >= 0) {
     Task *p = &tasks[parent];
     int *newChildren = realloc(p->children, sizeof(int) * (p->childCount + 1));
     if (newChildren) {
@@ -222,9 +230,27 @@ void editTask(int id, int parent, char* pretext)
       p->children[p->childCount] = id;
       p->childCount++;
     }
+
+    tasks[id] = (Task){
+      .task = strdup(buffer),
+      .parent = parent,
+      .childCount = 0,
+      .children = NULL,
+      .complete = 0x00
+    };
+
+    taskCount++;
   }
 
-  if (id >= taskCount) taskCount = id + 1;
+  if (mode == 1)
+  {
+    if (id >= 0 && id < taskCount) {
+      free(tasks[id].task);
+      tasks[id].task = strdup(buffer);
+    }
+  }
+
+
 
   delwin(popup);
 }
@@ -315,8 +341,8 @@ void loadFile(char* name)
     int parent, childCount;
 
     if (fread(&complete, sizeof(uint8_t), 1, file) != 1 ||
-        fread(&parent, sizeof(int), 1, file) != 1 ||
-        fread(&childCount, sizeof(int), 1, file) != 1)
+      fread(&parent, sizeof(int), 1, file) != 1 ||
+      fread(&childCount, sizeof(int), 1, file) != 1)
     {
       free(namebuf);
       break;

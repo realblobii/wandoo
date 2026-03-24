@@ -32,7 +32,7 @@ void printTaskRecursive(int id, int highlight, int x, int *y, int depth, int *cu
 
 int printTasks(int highlight);
 
-void editTask(int id, int parent, char* pretext);
+void editTask(int id, int parent, char* pretext, int mode);
 
 int getTaskIDByHighlight(int targetHighlight, int *currentIndex, int id);
 
