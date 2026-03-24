@@ -28,6 +28,10 @@ int visibleTasks;
 
 // FUNCTION DECLARATIONS
 
+void removeChildFromParent(int childId);
+
+void recurseDelete(int id);
+
 void printTaskRecursive(int id, int highlight, int x, int *y, int depth, int *currentIndex);
 
 int printTasks(int highlight);

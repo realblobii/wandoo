@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     loadFile(argv[1]);
   }
   else
-{
+  {
     printf("Incorrect usage. \nUsage: wandoo <filename>\n");
     return 1; 
   }
@@ -63,7 +63,6 @@ int main(int argc, char* argv[])
 
     curIndex = 0;
     highlightedID = getTaskIDByHighlight(highlight, &curIndex, 0);
-
     c = getch();
     switch(c)
     {
@@ -80,13 +79,15 @@ int main(int argc, char* argv[])
         break;
       case '+':
         editTask(taskCount, highlightedID, "new", 0);
-        taskCount++;
         break;
       case 10: 
         editTask(highlightedID, tasks[highlightedID].parent, tasks[highlightedID].task, 1);
         break;
       case 'w':
         saveFile(curFileName);
+        break;
+      case 330:
+        editTask(highlightedID, 0, "", 2);
         break;
       case 'q':
         goto cleanup;
@@ -110,9 +111,27 @@ cleanup:
   return 0;
 }
 
+void removeChildFromParent(int childId)
+{
+    int parentId = tasks[childId].parent;
+    if (parentId < 0) return; 
+
+    Task *parent = &tasks[parentId];
+    for (int i = 0; i < parent->childCount; i++) {
+        if (parent->children[i] == childId) {
+            memmove(&parent->children[i], &parent->children[i + 1],
+                    sizeof(int) * (parent->childCount - i - 1));
+            parent->childCount--;
+            return;
+        }
+    }
+}
 
 void printTaskRecursive(int id, int highlight, int x, int *y, int depth, int *currentIndex)
 {
+  if (tasks[id].parent == -2)
+    return;
+
   int indent = depth * 2;
   (*currentIndex)++;
 
@@ -131,6 +150,18 @@ void printTaskRecursive(int id, int highlight, int x, int *y, int depth, int *cu
     printTaskRecursive(tasks[id].children[i], highlight, x, y, depth + 1, currentIndex);
 }
 
+void recurseDelete(int id)
+{
+  removeChildFromParent(id);
+  tasks[id].parent = -2; 
+  if (tasks[id].childCount > 0)
+  {
+    for (int i = 0; i < tasks[id].childCount; i++)
+    {
+      recurseDelete(tasks[id].children[i]);
+    }
+  }
+}
 
 int printTasks(int highlight)
 {
@@ -146,6 +177,11 @@ void editTask(int id, int parent, char* pretext, int mode)
   int y = (LINES - h) / 2;
   int x = (COLS - w) / 2;
 
+  if (mode == 2)
+  {
+    recurseDelete(id);
+    return;
+  }
   WINDOW *popup = newwin(h, w, y, x);
   box(popup, 0, 0);
   keypad(popup, TRUE);
@@ -241,10 +277,10 @@ void editTask(int id, int parent, char* pretext, int mode)
 
     tasks[id] = (Task){
       .task = strdup(buffer),
-      .parent = parent,
-      .childCount = 0,
-      .children = NULL,
-      .complete = 0x00
+        .parent = parent,
+        .childCount = 0,
+        .children = NULL,
+        .complete = 0x00
     };
 
     taskCount++;
@@ -285,7 +321,6 @@ void saveFile(char* name)
 
   for (int i = 0; i < taskCount; i++)
   {
-
     int namelen = tasks[i].task ? (int)strlen(tasks[i].task) : 0;
     fwrite(&namelen, sizeof(int), 1, file);
     if (namelen > 0) fwrite(tasks[i].task, sizeof(char), namelen, file);
@@ -349,8 +384,8 @@ void loadFile(char* name)
     int parent, childCount;
 
     if (fread(&complete, sizeof(uint8_t), 1, file) != 1 ||
-      fread(&parent, sizeof(int), 1, file) != 1 ||
-      fread(&childCount, sizeof(int), 1, file) != 1)
+        fread(&parent, sizeof(int), 1, file) != 1 ||
+        fread(&childCount, sizeof(int), 1, file) != 1)
     {
       free(namebuf);
       break;
