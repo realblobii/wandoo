@@ -27,6 +27,12 @@ if you get a bug please just make an issue with a screenshot or logs.
 
 ## installing
 
+### aur
+
+[https://aur.archlinux.org/packages/wandoo](https://aur.archlinux.org/packages/wandoo)
+
+### compiling
+
 Run `./build.sh` and `build/wandoo <filename>` to build/run. 
 
 ## licensing
