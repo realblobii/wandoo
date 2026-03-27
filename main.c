@@ -41,9 +41,13 @@ int main(int argc, char* argv[])
 
   if (argc == 2)
   {
-    if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)   
-    {
-      printf("%s", helpmsg); 
+    if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0){   
+      printf("%s", helpmsg);
+      return 0;
+    }
+    else if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0)   
+    { 
+      printf("wandoo version %s\n", WANDOO_VER); 
       return 0;
     }
     else
