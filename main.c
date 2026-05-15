@@ -116,22 +116,22 @@ int main(int argc, char* argv[])
         tasks[highlightedID].complete ^= 0x01;
         unsavedChanges = true;
         break;
-      case '+':
+      case INPUT_KEY_NEW:
         editTask(taskCount, highlightedID, "new", 0);
         break;
       case INPUT_KEY_ENTER:
         editTask(highlightedID, tasks[highlightedID].parent, tasks[highlightedID].task, 1);
         break;
-      case 'w':
+      case INPUT_KEY_SAVE:
         saveFile(curFileName);
         break;
       case INPUT_KEY_DELETE:
         editTask(highlightedID, 0, "", 2);
         break;
-      case 'h':
+      case INPUT_KEY_HELP:
         help();
         break;
-      case 'q':
+      case INPUT_KEY_QUIT:
         if (!unsavedChanges || unsavedChangesWindow() == true)
             goto cleanup;
     }

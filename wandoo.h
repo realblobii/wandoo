@@ -6,6 +6,11 @@
 #define INPUT_KEY_SPACE  32
 #define INPUT_KEY_DELETE 330
 
+#define INPUT_KEY_SAVE 'w'
+#define INPUT_KEY_QUIT 'q'
+#define INPUT_KEY_NEW '+'
+#define INPUT_KEY_HELP 'h'
+
 // INCLUDES
 #include <stdio.h>
 #include <stdlib.h>
