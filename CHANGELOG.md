@@ -1,3 +1,10 @@
+# LATEST
+
+## Fixes:
+
+## Adds:
+- unsaved changes warning #9 by @segvyfault
+  
 # wandoo 1.0.3
 fixes a lot of issues caused by hard coding making the software just a bit more comfortable to use. 
 
